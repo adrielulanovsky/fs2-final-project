@@ -21,7 +21,14 @@ object Main extends IOApp.Simple {
       * - A header 'Content-Length' with the number of bytes in the body.
       */
     val echoRequestHandler: Request => IO[Response] =
-      ???
+      request => IO.pure(
+        Response(
+          request.httpVersion,
+          Response.Ok,
+          request.body,
+          Map("Content-Length" -> request.body.length.toString)
+        )
+      )
 
     val server = Server[IO](maxConnections, host, port, echoRequestHandler)
 

@@ -72,8 +72,17 @@ object Pipes {
                * Hint: look at step 1 for inspiration as it should be pretty similar.
                */
               case 0 => // reading method
-                ???
-
+                chunk.indexWhere(_ === SPACE) match {
+                  case Some(idx) =>
+                    val method = new String(buffer ++ chunk.take(idx).toArray)
+                    if (validMethods.contains(method)) {
+                      val newReq = request.copy(method = method)
+                      go(restOfStream.cons(chunk.drop(idx + 1)), step + 1, newReq, Array.empty)
+                    }
+                    else Pull.raiseError(new Exception(s"Invalid method: $method"))
+                  case None =>
+                    go(restOfStream, step, request, buffer ++ chunk.toArray)
+                }
               case 1 => // reading url
                 chunk.indexWhere(_ === SPACE) match {
                   case Some(idx) =>

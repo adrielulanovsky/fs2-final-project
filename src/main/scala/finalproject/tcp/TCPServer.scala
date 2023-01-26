@@ -66,7 +66,14 @@ object TCPServer {
      * Emit the serverSocketChannel as a resource and then use it
      * to repeateadly emit client tcp channels (each channel as a resource).
      */
-    override def stream: Stream[F, TCPChannel[F]] =
-      ???
+    override def stream: Stream[F, TCPChannel[F]] = {
+      Stream
+        .resource(serverSocketChannel)
+        .flatMap { serverSocketChannel =>
+          Stream
+            .resource(clientChannelResource(serverSocketChannel))
+            .repeat
+        }
+    }
   }
 }

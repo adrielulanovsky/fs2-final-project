@@ -2,6 +2,8 @@ package finalproject.server
 
 import cats._
 
+import java.nio.charset.StandardCharsets
+
 /**
  * An http response.
  */
@@ -16,8 +18,16 @@ case class Response(
    *
    * Transforms the response into a valid byte representation as per HTTP specs.
    */
-  def bytes: Array[Byte] =
-    ???
+  def bytes: Array[Byte] = {
+    val sb = new StringBuilder
+    sb.append(s"$httpVersion ${status.code} ${status.reason}\r\n")
+    headers.foreach { case (name, value) =>
+      sb.append(s"$name: $value\r\n")
+    }
+    sb.append("\r\n")
+    sb.append(new String(body, StandardCharsets.UTF_8))
+    sb.toString.getBytes(StandardCharsets.UTF_8)
+  }
 
   /**
    * String representation of this response (mostly for debugging).
